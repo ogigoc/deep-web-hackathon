@@ -41,6 +41,3 @@ class DbHandler:
 h = DbHandler()
 #h.put_unused_url("abcee")
 #print(h.get_unused_batch(2))
-while True:
-    txt = input('')
-    print(h.url_in_sites(txt))

@@ -13,8 +13,6 @@ session.proxies = {'http':  'http://10.120.194.45:8123/',
 my_ip = requests.get("http://httpbin.org/ip").text
 tor_ip = session.get("http://httpbin.org/ip").text
 
-print(my_ip, tor_ip)
-
 if(my_ip == tor_ip):
 	print('Not connected to tor. Aborting...')
 	quit()
