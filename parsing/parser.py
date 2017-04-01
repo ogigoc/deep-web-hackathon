@@ -7,6 +7,7 @@ from .PathNode import PathNode
 from .postprocessing import postprocess_path
 from .filtering import filter_tree
 from .transform import transform_tree
+from .date_mining import add_dates_to_tree
 
 NODE_BLACKLIST = [ 'script', 'style', 'head' ]
 
@@ -32,7 +33,7 @@ def create_pathnode(node):
 
     tag = node.name
 
-    return PathNode(tag, cls, id)
+    return PathNode(tag, cls, id, node)
 
 def add_to_path(path_root, node):
     parents = reversed(list(node.parents))
@@ -67,7 +68,7 @@ def add_to_path(path_root, node):
 def parse_html(html):
     # extract text under repeated html paths
     soup = BeautifulSoup(html, 'lxml')
-    path_root = PathNode('pathroot', [], None)
+    path_root = PathNode('pathroot', [], None, None)
 
     for node in soup.find_all():
         if node.name in NODE_BLACKLIST:
@@ -76,6 +77,7 @@ def parse_html(html):
     for node in soup.find_all():
         add_to_path(path_root, node)
 
+    add_dates_to_tree(path_root, soup)
     postprocess_path(path_root)
     filter_tree(path_root)
 

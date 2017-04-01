@@ -3,10 +3,11 @@ from Levenshtein import distance
 from .TextBlock import TextBlock
 
 class PathNode:
-    def __init__(self, tag, cls, id):
+    def __init__(self, tag, cls, id, node):
         self.id = id
         self.cls = cls
         self.tag = tag
+        self.node = node
         self.children = []
         self.text_blocks = []
 
@@ -94,6 +95,6 @@ class PathNode:
         if self.text_blocks:
             for t in self.text_blocks:
                 ts = t.get_text()
-                string += "\n|---text \"" + t.get_text() + "\""
+                string += "\n|---text \"" + t.get_text() + "\" on {0}".format(t.date)
 
         return string

@@ -7,17 +7,21 @@ def normalize_text(text):
 
 def cleanup_text(text):
     text = re.sub(r'[^->!?;.,a-zA-Z ]', '', text).lower().strip()
+    text = re.sub(r'(^|\s|[!?;.,])[^a-zA-Z0-9]+(\s|$|[!?;.,])', ' ', text)
     text = re.sub(r' +', ' ', text)
+    text = text.strip()
     return text
 
 def deduplicate_text_blocks(text_blocks):
     seen = {}
     new_blocks = []
     for t in text_blocks:
-        norm = normalize_text(t.get_text())
-        if not seen.get(norm) and len(t.get_text()) > 1:
+        text = t.get_text()
+        norm = normalize_text(text)
+        cleaned_up = cleanup_text(text)
+        if not seen.get(norm) and len(cleaned_up) > 1:
             seen[norm] = True
-            t.text = cleanup_text(t.text)
+            t.text = cleaned_up
             new_blocks.append(t)
 
     return new_blocks
