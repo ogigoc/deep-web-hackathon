@@ -2,6 +2,7 @@ import psycopg2
 import datetime
 from hashlib import sha1
 import re
+import stopwords
 
 class DbHandler:
     def __init__(self):
@@ -23,7 +24,8 @@ class DbHandler:
                 for word in text_block.text.split():
                     # SANITIZE
                     word_clean = re.sub(r"[->!?;.,', ']", "", word).lower().strip()
-                    self.cursor.execute("""INSERT INTO occurences(word, time) VALUES(%s, %s)""", (word_clean, text_block.time))
+                    if not stopwords.is_stopword(word_clean):
+                        self.cursor.execute("""INSERT INTO occurences(word, time) VALUES(%s, %s)""", (word_clean, text_block.time))
         self.conn.commit()
 
     def get_url_set(self):
@@ -51,4 +53,5 @@ class DbHandler:
         self.cursor = self.conn.cursor()
         self.cursor.execute("""INSERT INTO unused_urls (url, priority) VALUES (%s, %s) ON CONFLICT DO NOTHING;""",(url, priority))
         self.conn.commit()
-    
+
+print(stopwords.is_stopword())

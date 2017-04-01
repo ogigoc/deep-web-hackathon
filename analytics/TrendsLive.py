@@ -42,7 +42,7 @@ class TrendsLive:
                           GROUP BY word) t2
                        ON t1.word = t2.word
                        ORDER BY wpd_diff DESC
-                       LIMIT 10
+                       LIMIT 5
                 """
         self.cursor.execute(query, (dur_new, dur_old, date_old, date_middle, date_middle, date_new))
         rows = self.cursor.fetchall()
@@ -56,7 +56,7 @@ class TrendsLive:
 
 def main():
     t = TrendsLive()
-    mid = datetime.strptime('1.1.2017', '%d.%m.%Y')
+    mid = datetime.strptime('1.3.2016', '%d.%m.%Y')
     rows = t.get_trends(mid, TrendMode.YEAR)
     for row in rows:
         dates = t.get_occurences(row[0])
