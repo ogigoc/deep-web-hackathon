@@ -23,7 +23,7 @@ def deduplicate_text_blocks(text_blocks):
     return new_blocks
 
 def filter_tree(root):
-    if len(root.text_blocks) > 2:
+    if root.text_blocks:
         root.text_blocks = deduplicate_text_blocks(root.text_blocks)
 
     for c in root.children:
