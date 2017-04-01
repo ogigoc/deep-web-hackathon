@@ -26,10 +26,11 @@ class DbHandler:
         if self.cursor.rowcount == 0:
             return []
         rows = self.cursor.fetchall()
-        urls = set([row[0] for row in rows])
+        urls = [row[0] for row in rows]
         self.cursor.execute("""DELETE FROM unused_urls WHERE url IN (SELECT url FROM unused_urls ORDER BY url LIMIT %s);""",(sz,)) 
         self.conn.commit()
         return urls
+        # list(map(queue.put, urls))
 
     def put_unused_url(self, url):
         self.cursor.execute("""INSERT INTO unused_urls (url) VALUES (%s) ON CONFLICT DO NOTHING;""",(url,))
@@ -49,6 +50,5 @@ class DbHandler:
         rows = self.cursor.fetchall()
         return len(rows) > 0
         
-h = DbHandler()
-#h.put_unused_url("abcee")
-#print(h.get_unused_batch(2))
+# h = DbHandler()
+
