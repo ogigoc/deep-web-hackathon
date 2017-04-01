@@ -1,6 +1,7 @@
 import psycopg2
 import datetime
 from hashlib import sha1
+import re
 
 class DbHandler:
     def __init__(self):
@@ -21,7 +22,7 @@ class DbHandler:
                  (url, text_block.text, text_block.time, text_block.weight, i, sha1(text_block.text.encode('utf-8')).hexdigest()))
                 for word in text_block.text.split():
                     # SANITIZE
-                    word_clean = word.replace('->!?;.,', '').lower()
+                    word_clean = re.sub(r"[->!?;.,', ']", "", word).lower().strip()
                     self.cursor.execute("""INSERT INTO occurences(word, time) VALUES(%s, %s)""", (word_clean, text_block.time))
         self.conn.commit()
 
