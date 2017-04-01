@@ -95,18 +95,22 @@ class GeoAnalyzer:
     def get_loc_data(self):
         return self.loc_data
 
-# url = 'http://www.bbc.com/news/world-europe-26919928'
-h = DbHandler()
-g = GeoAnalyzer()
-LEN = 10
-blocks, ids = h.get_blocks(LEN)
-for i in range(len(blocks)):
-    if i % 10 == 0:
-        print("BLOCK " + str(i) + " / " + str(len(blocks)))
-    g.fetch_locs(text=blocks[i])
-print(g.get_loc_data())
-h.put_loc_data(g.get_loc_data())
-h.mark_analyzed(ids)
+def main():
+    # url = 'http://www.bbc.com/news/world-europe-26919928'
+    h = DbHandler()
+    g = GeoAnalyzer()
+    LEN = 10
+    blocks, ids = h.get_blocks(LEN)
+    for i in range(len(blocks)):
+        if i % 10 == 0:
+            print("BLOCK " + str(i) + " / " + str(len(blocks)))
+        g.fetch_locs(text=blocks[i])
+    print(g.get_loc_data())
+    h.put_loc_data(g.get_loc_data())
+    h.mark_analyzed(ids)
+
+if __name__ == "__main__":
+    main()
 
 # dodati da li je analizirano u text blocks
 
