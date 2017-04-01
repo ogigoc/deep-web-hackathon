@@ -19,9 +19,10 @@ class DbHandler:
             for text_block in lst:
                 self.cursor.execute("""INSERT INTO text_block (page_url, text, time, weight, category_id, sha1) VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;""",
                  (url, text_block.text, text_block.time, text_block.weight, i, sha1(text_block.text.encode('utf-8')).hexdigest()))
-                # TODO: test this
                 for word in text_block.text.split():
-                    self.cursor.execute("""INSERT INTO occurences(word, time) VALUES(%s, %s)""", (word, text_block.time))
+                    # SANITIZE
+                    word_clean = word.replace('->!?;.,', '').lower()
+                    self.cursor.execute("""INSERT INTO occurences(word, time) VALUES(%s, %s)""", (word_clean, text_block.time))
         self.conn.commit()
 
     def get_url_set(self):
