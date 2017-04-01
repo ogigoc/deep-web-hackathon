@@ -10,17 +10,37 @@ class DbHandler:
         self.cursor.execute("""INSERT INTO sites (url, html) VALUES (%s, %s);""",(url, html))
         self.conn.commit()
 
-    def print_sites(self):
+    def get_sites(self):
         self.cursor.execute("""SELECT * from sites;""") 
         rows = self.cursor.fetchall() 
-        print(rows)
+        return rows
 
     def get_url_set(self):
         self.cursor.execute("""SELECT url from sites;""") 
         rows = self.cursor.fetchall()
         urls = set([row[0] for row in rows])
-        print(urls)
-        print(type(urls))
+        return urls
 
+    def get_unused_batch(self, sz):
+        self.cursor.execute("""SELECT url FROM unused_urls ORDER BY url LIMIT %s;""",(sz,)) 
+        rows = self.cursor.fetchall()
+        urls = set([row[0] for row in rows])
+        self.cursor.execute("""DELETE FROM unused_urls WHERE url IN (SELECT url FROM unused_urls ORDER BY url LIMIT %s);""",(sz,)) 
+        self.conn.commit()
+        return urls
+
+    def put_unused_url(self, url):
+        self.cursor.execute("""INSERT INTO unused_urls (url) VALUES (%s);""",(url,))
+        self.conn.commit()
+
+    def url_in_sites(self, url):
+        self.cursor.execute("""SELECT url FROM sites WHERE url = %s;""",(url,))
+        rows = self.cursor.fetchall()
+        return len(rows) > 0
+        
 h = DbHandler()
-h.get_url_set()
+#h.put_unused_url("abcee")
+#print(h.get_unused_batch(2))
+while True:
+    txt = input('')
+    print(h.url_in_sites(txt))
