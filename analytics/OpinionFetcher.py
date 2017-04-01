@@ -65,3 +65,4 @@ if __name__ == "__main__":
 
 # 1. mapa sa polarizovanim pinovima po sigmoidu (globe cak eventualno?!)
 # 2. za neku rec what does deep web think?! index
+# 3. TrendsLive ()

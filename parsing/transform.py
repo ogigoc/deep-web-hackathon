@@ -3,7 +3,7 @@ import datetime
 
 def append_text_blocks(root, text_blocks):
     if root.text_blocks:
-        text_blocks.append([OutputTextBlock(t.get_text(), t.date, t.weight) for t
+        text_blocks.append([OutputTextBlock(t.get_text(), t.date, t.weight, t.date) for t
             in root.text_blocks])
 
 def transform_tree(root, text_blocks = None):
