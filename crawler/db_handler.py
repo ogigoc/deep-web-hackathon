@@ -1,4 +1,6 @@
-import psycopg2 
+import psycopg2
+import datetime
+from hashlib import sha1
 
 class DbHandler:
     def __init__(self):
@@ -6,49 +8,45 @@ class DbHandler:
         self.conn = psycopg2.connect(connect_str) 
         self.cursor = self.conn.cursor() 
 
-    def put_site(self, url, html):
-        self.cursor.execute("""INSERT INTO sites (url, html) VALUES (%s, %s);""",(url, html))
+    def put_page(self, url, last_modified, title):
+        self.cursor = self.conn.cursor()
+        self.cursor.execute("""INSERT INTO page (url, timestamp, title) VALUES (%s, now(), %s) ON CONFLICT DO NOTHING;""",(url, title))
         self.conn.commit()
 
-    def get_sites(self):
-        self.cursor.execute("""SELECT * from sites;""") 
-        rows = self.cursor.fetchall() 
-        return rows
+    def put_text_blocks(self, url, text_blocks):
+        self.cursor = self.conn.cursor()
+        for i, lst in enumerate(text_blocks):
+            for text_block in lst:
+                self.cursor.execute("""INSERT INTO text_block (page_url, text, time, weight, category_id, sha1) VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;""",
+                 (url, text_block.text, text_block.time, text_block.weight, i, sha1(text_block.text.encode('utf-8')).hexdigest()))
+
+        self.conn.commit()
 
     def get_url_set(self):
-        self.cursor.execute("""SELECT url from sites;""") 
+        self.cursor = self.conn.cursor()
+        self.cursor.execute("""SELECT url from page;""") 
         rows = self.cursor.fetchall()
         urls = set([row[0] for row in rows])
         return urls
 
     def get_unused_batch(self, sz):
-        self.cursor.execute("""SELECT url FROM unused_urls ORDER BY url LIMIT %s;""",(sz,))
+        self.cursor = self.conn.cursor()
+        self.cursor.execute("""SELECT id, priority, url FROM unused_urls ORDER BY priority ASC, id ASC LIMIT %s;""",(sz,))
         if self.cursor.rowcount == 0:
             return []
         rows = self.cursor.fetchall()
-        urls = [row[0] for row in rows]
-        self.cursor.execute("""DELETE FROM unused_urls WHERE url IN (SELECT url FROM unused_urls ORDER BY url LIMIT %s);""",(sz,)) 
+        urls = [row[2] for row in rows]
+        min_id = min([row[0] for row in rows])
+        min_priority = min([row[1] for row in rows])
+        self.cursor.execute("""DELETE FROM unused_urls WHERE id >= %s AND priority >= %s;""",(min_id, min_priority)) 
         self.conn.commit()
         return urls
         # list(map(queue.put, urls))
 
-    def put_unused_url(self, url):
-        self.cursor.execute("""INSERT INTO unused_urls (url) VALUES (%s) ON CONFLICT DO NOTHING;""",(url,))
+    def put_unused_url(self, url, priority = 100000):
+        self.cursor = self.conn.cursor()
+        self.cursor.execute("""INSERT INTO unused_urls (url, priority) VALUES (%s, %s) ON CONFLICT DO NOTHING;""",(url, priority))
         self.conn.commit()
-
-    def url_in_unused(self, url):
-        self.cursor.execute("""SELECT url FROM unused_urls WHERE url = %s;""",(url,))
-        if self.cursor.rowcount == 0:
-            return False
-        rows = self.cursor.fetchall()
-        return len(rows) > 0 #http://gxamjbnu7uknahng.onion/wiki/index.php/Main_Page
-
-    def url_in_sites(self, url):
-        self.cursor.execute("""SELECT url FROM sites WHERE url = %s;""",(url,))
-        if self.cursor.rowcount == 0:
-            return False
-        rows = self.cursor.fetchall()
-        return len(rows) > 0
         
 # h = DbHandler()
 

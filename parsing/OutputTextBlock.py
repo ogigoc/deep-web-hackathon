@@ -1,7 +1,7 @@
 class OutputTextBlock:
-    def __init__(self, text, date, weight):
+    def __init__(self, text, time, weight):
         self.text = text
-        self.date = date
+        self.time = time
         self.weight = weight
 
     def __str__(self):

@@ -15,7 +15,7 @@ def deduplicate_text_blocks(text_blocks):
     new_blocks = []
     for t in text_blocks:
         norm = normalize_text(t.get_text())
-        if not seen.get(norm):
+        if not seen.get(norm) and len(t.get_text()) > 1:
             seen[norm] = True
             t.text = cleanup_text(t.text)
             new_blocks.append(t)
