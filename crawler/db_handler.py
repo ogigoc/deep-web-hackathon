@@ -40,3 +40,4 @@ class DbHandler:
         return len(rows) > 0
         
 # h = DbHandler()
+
