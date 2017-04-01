@@ -5,21 +5,28 @@ import requests
 import psycopg2
 import datetime
 from hashlib import sha1
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-class SentimentAnalyzer:
-	def __init__(self):
-		self.sess = requests.Session()
-		self.SENTIMENT_URL = 'http://text-processing.com/api/sentiment/'
+class VaderSentimentAnalyzer:
+    def __init__(self):
+        self.analyzer = SentimentIntensityAnalyzer()
 
-	# http://text-processing.com/docs/sentiment.html
-	# returns (positive, negative) tuple adding up to one
-	def get_sentiment(self, text):
-		r = self.sess.post(self.SENTIMENT_URL, {'text': text})
-		res = json.loads(r.text)
-		if res['label'] == 'neutral':
-			return (0.5, 0.5)
-		else:
-			return (res['probability']['pos'], res['probability']['neg'])
+    def get_sentiment(self, text):
+        vs = self.analyzer.polarity_scores(text)
+        return vs['compound']
+
+    def get_verdict(self, div):
+        print(div)
+        if div < -0.5:
+            return 'overwhelmingly negative'
+        elif div < -0.1:
+            return 'negative'
+        elif div < 0.1:
+            return 'neutral'
+        elif div < 0.5:
+            return 'positive'
+        else:
+            return 'overwhelmingly positive'
 
 class DbHandler:
     def __init__(self):
@@ -27,76 +34,79 @@ class DbHandler:
         self.conn = psycopg2.connect(connect_str) 
         self.cursor = self.conn.cursor() 
 
+    def mark_analyzed(self, ids):
+        self.cursor.execute("""UPDATE text_block SET analyzed = true WHERE id IN %s;""", ((ids,)))
+        self.conn.commit()
+
     def get_blocks(self, qty):
         self.cursor = self.conn.cursor()
-        self.cursor.execute("""SELECT text FROM text_block WHERE LENGTH(text) > 100 LIMIT %s;""", (qty,)) 
+        self.cursor.execute("""SELECT text, analyzed, id FROM text_block WHERE LENGTH(text) > 50 AND analyzed = false LIMIT %s;""", (qty,)) 
         rows = self.cursor.fetchall()
-        blocks = [row[0] for row in rows]
-        return blocks
+        blocks, ids = zip(*[(row[0], row[2]) for row in rows if not row[1]])
+        return blocks, ids
 
     def put_loc_data(self, loc_data):
-    	for k, v in loc_data.items():
-    		self.cursor.execute("""SELECT name FROM locations WHERE name=%s;""", (k,)) 
-        	rows = self.cursor.fetchall()
-        	if len(rows) > 0:
-        		self.cursor.execute("""UPDATE locations SET qty = qty + %s, pos = pos + %s, neg = neg + %s WHERE name = %s;""",(v[2], v[3], v[4], k))
-        	else:
-        		self.cursor.execute("""INSERT INTO locations (name, lat, lng, qty, pos, neg) VALUES (%s, %s, %s, %s, %s, %s);""",(k, v[0], v[1], v[2], v[3], v[4]))
-    	self.conn.commit()
-
+        for k, v in loc_data.items():
+            self.cursor.execute("""SELECT name FROM locations WHERE name=%s;""", (k,)) 
+            rows = self.cursor.fetchall()
+            if len(rows) > 0:
+                self.cursor.execute("""UPDATE locations SET qty = qty + %s, sent = sent + %s WHERE name = %s;""",(v[2], v[3], k))
+            else:
+                self.cursor.execute("""INSERT INTO locations (name, lat, lng, qty, sent) VALUES (%s, %s, %s, %s, %s);""",(k, v[0], v[1], v[2], v[3]))
+        self.conn.commit()
 
 class GeoAnalyzer:
-	def __init__(self):
-		self.gmaps = googlemaps.Client(key='AIzaSyB_lS9NW-Ik674_5fzoK10OW0k3xG-Vohc')
-		self.loc_data = dict() # name -> (lat, lng, qty, pos, neg)
-		self.sent = SentimentAnalyzer()
+    def __init__(self):
+        self.gmaps = googlemaps.Client(key='AIzaSyB_lS9NW-Ik674_5fzoK10OW0k3xG-Vohc')
+        self.loc_data = dict() # name -> (lat, lng, qty, sent)
+        self.sen = VaderSentimentAnalyzer()
 
-	def merge_tups(self, tup1, tup2):
-		return (tup1[0] + tup2[0], tup1[1] + tup2[1], tup1[2] + tup2[2])
+    def merge_tups(self, tup1, tup2):
+        return (tup1[0] + tup2[0], tup1[1] + tup2[1], tup1[2] + tup2[2])
 
-	def do_geocoding(self, location):
-		geocode_result = self.gmaps.geocode(location)
-		if len(geocode_result) > 0 and 'geometry' in geocode_result[0]:
-			geom = geocode_result[0]['geometry']
-			if 'location' in geom:
-				lat = geom['location']['lat']
-				lng = geom['location']['lng']
-				return (lat, lng)
-		return None
+    def do_geocoding(self, location):
+        geocode_result = self.gmaps.geocode(location)
+        if len(geocode_result) > 0 and 'geometry' in geocode_result[0]:
+            geom = geocode_result[0]['geometry']
+            if 'location' in geom:
+                lat = geom['location']['lat']
+                lng = geom['location']['lng']
+                return (lat, lng)
+        return None
 
-	def fetch_locs(self, text=None, url=None):
-		sentiment = self.sent.get_sentiment(text)
-		if text:
-			text = " ".join(w.capitalize() for w in text.split())
-		places = geograpy.get_place_context(text=text, url=url)
-		entities = []
-		entities.extend(places.countries)
-		#entities.extend(places.cities)
-		#entities.extend(places.other)
-		for name in entities:
-			if name in self.loc_data:
-				d = self.loc_data[name]
-				self.loc_data[name] = (d[0], d[1], d[2] + 1, d[3] + sentiment[0], d[4] + sentiment[1])
-			else:
-				latlng = self.do_geocoding(name)
-				if latlng:
-					self.loc_data[name] = latlng + (1,) + sentiment
+    def fetch_locs(self, text=None, url=None):
+        sentiment = self.sen.get_sentiment(text)
+        if text:
+            text = " ".join(w.capitalize() for w in text.split())
+        places = geograpy.get_place_context(text=text, url=url)
+        entities = []
+        entities.extend(places.countries)
+        #entities.extend(places.cities)
+        #entities.extend(places.other)
+        for name in entities:
+            if name in self.loc_data:
+                d = self.loc_data[name]
+                self.loc_data[name] = (d[0], d[1], d[2] + 1, d[3] + sentiment)
+            else:
+                latlng = self.do_geocoding(name)
+                if latlng:
+                    self.loc_data[name] = latlng + (1, sentiment)
 
-	def get_loc_data(self):
-		return self.loc_data
+    def get_loc_data(self):
+        return self.loc_data
 
 # url = 'http://www.bbc.com/news/world-europe-26919928'
 h = DbHandler()
 g = GeoAnalyzer()
-s = SentimentAnalyzer()
 LEN = 10
-blocks = h.get_blocks(LEN)
+blocks, ids = h.get_blocks(LEN)
 for i in range(len(blocks)):
-	if i % 10 == 0:
-		print("BLOCK " + str(i) + " / " + str(len(blocks)))
-	g.fetch_locs(text=blocks[i])
+    if i % 10 == 0:
+        print("BLOCK " + str(i) + " / " + str(len(blocks)))
+    g.fetch_locs(text=blocks[i])
 print(g.get_loc_data())
 h.put_loc_data(g.get_loc_data())
+h.mark_analyzed(ids)
 
 # dodati da li je analizirano u text blocks
 
