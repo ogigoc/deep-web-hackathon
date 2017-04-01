@@ -14,6 +14,15 @@ class Searcher:
 			print('Not connected to tor. Aborting...')
 			quit()
 
+	def get_torch_results(self, query):
+		reg = re.compile('^\.\/r2d.php\?url=(.*)\&q=.*$')
+		url = 'http://xmh57jrzrnw6insl.onion/4a1f6b371c/search.cgi?q={0}&cmd=Search!'.format(query)
+		html = self.session.get(url).text
+		reg = re.compile(r'href="([^"]+)')
+		links = reg = reg.findall(html)
+		return links
+
+
 	def get_notevil_results(self, query):
 		reg = re.compile('^\.\/r2d.php\?url=(.*)\&q=.*$')
 		url = 'http://hss3uro2hsxfogfq.onion/index.php?q={0}'.format(query)
@@ -22,3 +31,4 @@ class Searcher:
 		links = soup.find_all('span', style='color:black;')
 		link_texts = [link.text for link in links]
 		return link_texts
+
