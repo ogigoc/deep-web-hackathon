@@ -4,10 +4,10 @@ import queue
 import re
 import threading
 import time
-from db_handler import h
+from db_handler import DbHandler
 
 session = requests.session()
-session.proxies = {'http':  'http://10.120.194.45:8123/',
+session.proxies = {'http' : 'http://10.120.194.45:8123/',
                    'https': 'http://10.120.194.45:8123/'}
 
 my_ip = requests.get("http://httpbin.org/ip").text
@@ -17,9 +17,11 @@ if(my_ip == tor_ip):
 	print('Not connected to tor. Aborting...')
 	quit()
 
-visited = set()
+h1 = DbHandler()
+visited = h1.get_url_set()
 que = queue.Queue()
 
+print('namestio sam')
 
 def parse_link(l, url):
 	sol = ""
@@ -57,31 +59,34 @@ def base(url):
 	else:
 		return url[:pos + 7]
 
-que.put('http://gxamjbnu7uknahng.onion/wiki/index.php/Main_Page')
-
 
 exitFlag = 0
 num = 2
 
 class myThread (threading.Thread):
-   def __init__(self, threadID, q, s):
+   def __init__(self, threadID, q, s, h):
       threading.Thread.__init__(self)
       self.threadID = threadID
       self.q = q
       self.s = s
+      self.h = h
    def run(self):
-      process_data(self.name, self.q, self.s)
+      process_data(self.name, self.q, self.s, self.h)
 
-def process_data(threadID, q, s):
+def process_data(threadID, q, s, h):
    while not exitFlag:
       #queueLock.acquire()
       if not q.empty():
 
          url = q.get()
+
+         head = s.head(url)
+         if 'Content-Length' in head.headers and int(head.headers['Content-Length']) > 1024 * 100:
+         	continue
          r = s.get(url)
 
-         if r and r.url and r.text:
-         	h.put_site(r.url, r.text)
+         if r:
+         	h.put_site(r.url, r.text.replace('\x00', ''))
 
          reg = re.compile(r'href="([^"]+)')
          good_links = filter_links(reg.findall(r.text), base(r.url))
@@ -89,7 +94,9 @@ def process_data(threadID, q, s):
          new_links = [link for link in good_links if link not in visited]
 
          for link in new_links:
-         	q.put(link)
+         	if link not in visited:
+         		h.put_unused_url(link)
+         		visited.add(link)
 
          #queueLock.release()
          print ("%s processing %s" % (threadID, '1'))
@@ -100,11 +107,19 @@ def process_data(threadID, q, s):
 #queueLock = threading.Lock()
 
 threads = []
-
-for id in range(3):
-	thread = myThread(id, que, session)
+print('palim tredove')
+for id in range(50):
+	thread = myThread(id, que, session, DbHandler())
 	thread.start()
 	threads.append(thread)
+
+print('beskonacna petlja')
+#h1.put_unused_url('http://gxamjbnu7uknahng.onion/wiki/index.php/Main_Page')
+while 1:
+	if que.empty():
+		for url in h1.get_unused_batch(1000):
+			que.put(url)
+
 
 """
 

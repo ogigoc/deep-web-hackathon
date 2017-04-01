@@ -22,7 +22,9 @@ class DbHandler:
         return urls
 
     def get_unused_batch(self, sz):
-        self.cursor.execute("""SELECT url FROM unused_urls ORDER BY url LIMIT %s;""",(sz,)) 
+        self.cursor.execute("""SELECT url FROM unused_urls ORDER BY url LIMIT %s;""",(sz,))
+        if self.cursor.rowcount == 0:
+            return []
         rows = self.cursor.fetchall()
         urls = set([row[0] for row in rows])
         self.cursor.execute("""DELETE FROM unused_urls WHERE url IN (SELECT url FROM unused_urls ORDER BY url LIMIT %s);""",(sz,)) 
@@ -30,11 +32,20 @@ class DbHandler:
         return urls
 
     def put_unused_url(self, url):
-        self.cursor.execute("""INSERT INTO unused_urls (url) VALUES (%s);""",(url,))
+        self.cursor.execute("""INSERT INTO unused_urls (url) VALUES (%s) ON CONFLICT DO NOTHING;""",(url,))
         self.conn.commit()
+
+    def url_in_unused(self, url):
+        self.cursor.execute("""SELECT url FROM unused_urls WHERE url = %s;""",(url,))
+        if self.cursor.rowcount == 0:
+            return False
+        rows = self.cursor.fetchall()
+        return len(rows) > 0 #http://gxamjbnu7uknahng.onion/wiki/index.php/Main_Page
 
     def url_in_sites(self, url):
         self.cursor.execute("""SELECT url FROM sites WHERE url = %s;""",(url,))
+        if self.cursor.rowcount == 0:
+            return False
         rows = self.cursor.fetchall()
         return len(rows) > 0
         
