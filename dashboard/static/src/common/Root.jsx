@@ -1,7 +1,7 @@
 import React from 'react';
-import NavMenu from './NavMenu.jsx'
-import Analytics from '../pages/Analytics.jsx'
-import Discovery from '../pages/Discovery.jsx'
+import NavMenu from './NavMenu.jsx';
+import Analytics from '../pages/Analytics.jsx';
+import Discovery from '../pages/Discovery.jsx';
 require('../sass/index.scss');
 
 export default class Root extends React.Component {

@@ -13,7 +13,7 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: /.jsx?$/,
+                test: /\.jsx?$/,
                 loader: 'babel-loader',
                 exclude: /node_modules/,
                 query: {
@@ -21,8 +21,12 @@ module.exports = {
                 }
             },
             {
-                test: /.scss$/,
+                test: /\.scss$/,
                 loaders: ['style-loader', 'css-loader', 'sass-loader']
+            },
+            {
+                test: /\.css$/,
+                loaders: ['style-loader', 'css-loader']
             }
         ]
     },
