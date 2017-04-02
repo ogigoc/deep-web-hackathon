@@ -1,12 +1,16 @@
-from search.search import Searcher
+from crawler.search import Searcher
 from crawler.db_handler import DbHandler
 
-query = "libya"
+query = "bitcoin"
 s = Searcher()
 db = DbHandler()
 
-for result in s.get_notevil_results(query):
-	db.put_unused_url(result, priority = 40000)
+notevil_results = s.get_notevil_results(query)
+torch_results = s.get_torch_results(query)
 
-for result in s.get_torch_results(query):
+print(len(notevil_results), len(torch_results))
+
+for result in notevil_results:
+	db.put_unused_url(result, priority = 40000)
+for result in torch_results:
 	db.put_unused_url(result, priority = 40000)

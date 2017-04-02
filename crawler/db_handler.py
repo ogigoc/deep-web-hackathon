@@ -2,7 +2,7 @@ import psycopg2
 import datetime
 from hashlib import sha1
 import re
-import stopwords
+import crawler.stopwords
 
 class DbHandler:
     def __init__(self):
