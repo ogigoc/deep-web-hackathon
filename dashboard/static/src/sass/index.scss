@@ -84,3 +84,23 @@ body {
         width: 13px;
     }
 }
+
+.tooltip-title {
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.tooltip-label {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    width: 100px;
+}
+
+.tooltip-entry {
+    display: inline-block;
+    width: 100px;
+    font-size: 12px;
+}
