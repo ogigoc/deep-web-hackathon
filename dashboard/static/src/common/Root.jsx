@@ -1,8 +1,8 @@
 import React from 'react';
-import NavMenu from './NavMenu.jsx'
-import Analytics from './Analytics.jsx'
-import Discovery from './Discovery.jsx'
-require('./sass/index.scss');
+import NavMenu from './NavMenu.jsx';
+import Analytics from '../pages/Analytics.jsx';
+import Discovery from '../pages/Discovery.jsx';
+require('../sass/index.scss');
 
 export default class Root extends React.Component {
     constructor() {
@@ -36,8 +36,10 @@ export default class Root extends React.Component {
         return (
             <div id="page">
                 <NavMenu activeItem={activeItem} onChange={this.onActiveItemChange} items={items} />
-                <Analytics className={activeItem === 'analytics' ? '' : 'hidden'} />
-                <Discovery className={activeItem === 'discovery' ? '' : 'hidden'} />
+                <div id="content">
+                    <Analytics className={activeItem === 'analytics' ? '' : 'hidden'} />
+                    <Discovery className={activeItem === 'discovery' ? '' : 'hidden'} />
+                </div>
             </div>
         );
     }
