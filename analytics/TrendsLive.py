@@ -46,10 +46,11 @@ class TrendsLive:
                 """
         self.cursor.execute(query, (dur_new, dur_old, dur_new, dur_old, date_old, date_middle, date_middle, date_new, top))
         rows = self.cursor.fetchall()
-        return rows
+        return (rows, date_old, date_new)
 
-    def get_occurences(self, word):
-        self.cursor.execute("""SELECT time FROM occurences WHERE word = 'brate'""")
+    def get_occurences(self, word, date_l, date_r):
+        self.cursor.execute("""SELECT time FROM occurences WHERE word = %s 
+                               AND time > %s AND time < %s""", (word, date_l, date_r))
         rows = self.cursor.fetchall()
         dates = [row[0] for row in rows]
         return dates

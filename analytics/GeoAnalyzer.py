@@ -23,6 +23,8 @@ class DbHandler:
         self.cursor.execute("""SELECT text, analyzed, id FROM text_block WHERE LENGTH(text) > 10 AND analyzed = false LIMIT %s;""", (qty,)) 
         rows = self.cursor.fetchall()
         # TODO: verify this works fine
+        if len(rows) == 0:
+            return (), ()
         blocks, ids = zip(*[(row[0], row[2]) for row in rows])
         return blocks, ids
 
