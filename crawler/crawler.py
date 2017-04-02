@@ -28,6 +28,7 @@ visited = db.get_url_set()
 utree = dict()
 prios = dict()
 
+visited = set()
 for url in CONST.PAGES:
     if url not in visited:
         db.put_unused_url(url, CONST.PRIORITY_SEARCH/2)

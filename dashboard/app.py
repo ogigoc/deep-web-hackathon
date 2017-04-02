@@ -64,7 +64,10 @@ def trends():
 def seed():
     data = request.get_json()
     if data and data.get('query'):
-        results = seed_crawler(data.get('query'))
+        results = ['tred']
+        threading
+        t = threading.Thread(target=seed_crawler, args=(data.get('query'),))
+        t.start()
         return json.dumps("Found " + str(results) + " results.")
     return json.dumps("Bad request")
 
