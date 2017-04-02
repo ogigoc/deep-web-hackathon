@@ -67,7 +67,6 @@ export default class GeoSentiment extends React.Component {
 
         return (
             <Segment className="widget" raised>
-                {loading ? <Loader /> : null}
                 <Header as='h3'>Geographical Sentiment</Header>
                 <Map id="geo-sentiment-map" center={[34.5, -94.16]} zoom={1}>
                     <TileLayer
@@ -80,14 +79,15 @@ export default class GeoSentiment extends React.Component {
                             stroke={false}
                             fill={true}
                             fillColor={getColor(country.sentiment)}
-                            radius={Math.abs(country.sentiment) * 30 + 5}
+                            radius={Math.abs(country.sentiment) * 10 + 10}
                             fillOpacity={0.9}
                         >
                             <GeoSentimentPopup country={country} />
                         </CircleMarker>
                     ))}
-                    <Dimmer active={loading} />
-                </Map>
+                </Map> <Dimmer inverted active={loading}>
+                    {loading ? <Loader /> : null}
+                </Dimmer>
             </Segment>
         );
     }

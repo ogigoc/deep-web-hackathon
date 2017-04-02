@@ -17,3 +17,8 @@ export function getTrends(timestamp, mode, limit) {
     return fetch(buildUrl(`trends?date=${Math.floor(timestamp.getTime() / 1000)}&limit=${limit}&mode=${modeMap[mode]}`))
         .then(response => response.json());
 }
+
+export function getOpinion(query) {
+    return fetch(buildUrl(`opinion?text=${query}`))
+        .then(response => response.json());
+}
