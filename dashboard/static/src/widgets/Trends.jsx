@@ -5,21 +5,66 @@ import * as moment from 'moment'
 import 'react-dates/lib/css/_datepicker.css';
 
 import TrendsTable from './TrendsTable.jsx';
+import TrendsChart from './TrendsChart.jsx';
 
 export default class Trends extends React.Component {
     constructor() {
         super();
 
+        const mockItems = [{
+            word: 'kite',
+            enabled: true,
+            change: '+12%'
+        }, {
+            word: 'jaja',
+            enabled: true,
+            change: '+8%'
+        }, {
+            word: 'humreti',
+            enabled: true,
+            change: '+5%'
+        }, {
+            word: 'bebo',
+            enabled: true,
+            change: '+3%'
+        }, {
+            word: 'kite2',
+            enabled: true,
+            change: '+12%'
+        }, {
+            word: 'jaja2',
+            enabled: true,
+            change: '+8%'
+        }, {
+            word: 'humreti2',
+            enabled: true,
+            change: '+5%'
+        }, {
+            word: 'bebo2',
+            enabled: true,
+            change: '+3%'
+        }, {
+            enabled: true,
+            word: 'aaaa'
+        }, {
+            enabled: true,
+            word: 'bbbb'
+        }, {
+            enabled: true,
+            word: 'mock'
+        }];
+
         this.state = {
             range: 'week',
             datePickerFocused: false,
-            word: null
+            items: mockItems
         };
 
         this.onDateChange = this.onDateChange.bind(this);
         this.onDatePickerFocusChange = this.onDatePickerFocusChange.bind(this);
         this.onRangeChange = this.onRangeChange.bind(this);
         this.onSelectedRowChange = this.onSelectedRowChange.bind(this);
+        this.onWordEnabledChange = this.onWordEnabledChange.bind(this);
     }
 
     onDateChange(date) {
@@ -39,39 +84,20 @@ export default class Trends extends React.Component {
         this.setState({ word });
     }
 
+    onWordEnabledChange(word, enabled) {
+        console.log(this, word, enabled);
+        this.setState({
+            items: this.state.items.map(w => {
+                if (w.word === word)
+                    w.enabled = enabled;
+
+                return { word: w.word, enabled: w.enabled };
+            })
+        });
+    }
+
     render() {
-        const { date, timeframe, datePickerFocused } = this.state;
-        const mockItems = [{
-            word: 'kite',
-            change: '+12%'
-        }, {
-            word: 'jaja',
-            change: '+8%'
-        }, {
-            word: 'humreti',
-            change: '+5%'
-        }, {
-            word: 'bebo',
-            change: '+3%'
-        }, {
-            word: 'kite2',
-            change: '+12%'
-        }, {
-            word: 'jaja2',
-            change: '+8%'
-        }, {
-            word: 'humreti2',
-            change: '+5%'
-        }, {
-            word: 'bebo2',
-            change: '+3%'
-        }, {
-            word: 'aaaa'
-        }, {
-            word: 'bbbb'
-        }, {
-            word: 'mock'
-        }];
+        const { items, date, timeframe, datePickerFocused } = this.state;
 
         return (
             <Segment className="widget" raised>
@@ -111,13 +137,23 @@ export default class Trends extends React.Component {
                     <Grid.Row>
                         <Grid.Column width={7}>
                             <TrendsTable
-                                onChange={this.onSelectedRowChange}
-                                selectedRow={this.state.word}
-                                items={mockItems} />
+                                onRowEnabledChange={this.onWordEnabledChange}
+                                items={items} />
+                        </Grid.Column>
+                        <Grid.Column width={9}>
+                            <TrendsChart
+                                dates={[
+                                    "01.04.2017",
+                                    "30.10.2016",
+                                    "30.12.2016",
+                                    "30.12.2016",
+                                    "30.11.2016"
+                                ]}
+                            />
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
             </Segment>
-        );
-    }
-}
+            );
+            }
+            }

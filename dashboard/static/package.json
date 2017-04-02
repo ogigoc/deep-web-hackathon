@@ -14,7 +14,8 @@
     "react-addons-shallow-compare": "^15.4.2",
     "react-dates": "^9.0.0",
     "react-dom": "^15.4.2",
-    "react-leaflet": "^1.1.4"
+    "react-leaflet": "^1.1.4",
+    "react-vis": "^1.2.0"
   },
   "devDependencies": {
     "babel-core": "^6.24.0",
