@@ -1,4 +1,5 @@
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from analytics.OpinionClass import OpinionClass
 
 class VaderSentimentAnalyzer:
     def __init__(self):
@@ -9,14 +10,13 @@ class VaderSentimentAnalyzer:
         return vs['compound']
 
     def get_verdict(self, div):
-        print(div)
         if div < -0.5:
-            return 'overwhelmingly negative'
+            return OpinionClass.VERY_NEGATIVE
         elif div < -0.1:
-            return 'negative'
+            return OpinionClass.NEGATIVE
         elif div < 0.1:
-            return 'neutral'
+            return OpinionClass.NEUTRAL
         elif div < 0.5:
-            return 'positive'
+            return OpinionClass.POSITIVE
         else:
-            return 'overwhelmingly positive'
+            return OpinionClass.VERY_POSITIVE
