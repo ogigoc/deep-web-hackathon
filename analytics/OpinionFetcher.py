@@ -6,7 +6,8 @@ from scipy.stats import logistic
 from functools import reduce
 import sys
 import getopt
-from VaderSentimentAnalyzer import VaderSentimentAnalyzer
+from analytics.VaderSentimentAnalyzer import VaderSentimentAnalyzer
+from analytics.OpinionClass import OpinionClass
 
 class OpinionFetcher:
     def __init__(self):
@@ -28,7 +29,7 @@ class OpinionFetcher:
             return "0 mentions of " + sample + "."
         avg = sum(opinions) / float(len(opinions))
         verdict = self.sen.get_verdict(avg)
-        return str(len(opinions)) + " mentions of " + sample + " being " + verdict + " overall."
+        return (opinions, verdict)
 
 def main():
     if len(sys.argv) < 2:

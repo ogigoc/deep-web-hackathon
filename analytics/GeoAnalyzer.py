@@ -21,7 +21,8 @@ class DbHandler:
         self.cursor = self.conn.cursor()
         self.cursor.execute("""SELECT text, analyzed, id FROM text_block WHERE LENGTH(text) > 50 AND analyzed = false LIMIT %s;""", (qty,)) 
         rows = self.cursor.fetchall()
-        blocks, ids = zip(*[(row[0], row[2]) for row in rows if not row[1]])
+        # TODO: verify this works fine
+        blocks, ids = zip(*[(row[0], row[2]) for row in rows])
         return blocks, ids
 
     def put_loc_data(self, loc_data):

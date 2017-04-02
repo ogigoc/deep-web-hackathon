@@ -3,7 +3,7 @@ import string
 import psycopg2
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from TrendMode import TrendMode
+from analytics.TrendMode import TrendMode
 
 class TrendsLive:
     def __init__(self):
@@ -13,7 +13,7 @@ class TrendsLive:
 
     # date_d je datum od kog gledamo pre i posle
     # mode je enum:
-    def get_trends(self, date_middle, trend_mode):
+    def get_trends(self, date_middle, trend_mode, top):
         # durationi oba
         if trend_mode == TrendMode.WEEK:
             delta = relativedelta(weeks = 1)
@@ -28,9 +28,9 @@ class TrendsLive:
         dur_old = (date_middle - date_old).days
         dur_new = (date_new - date_middle).days
         query = """ SELECT COALESCE(t1.word, t2.word) AS word, 
-                           CAST(COALESCE(occ2, 0) AS REAL) / %s - CAST(COALESCE(occ1, 0) AS REAL) / %s AS wpd_diff,
-                           COALESCE(occ1, 0),
-                           COALESCE(occ2, 0)
+                           CAST(COALESCE(occ2, 0) AS REAL) / %s * 100 AS wpd2,
+                           CAST(COALESCE(occ1, 0) AS REAL) / %s * 100 AS wpd1,
+                           CAST(COALESCE(occ2, 0) AS REAL) / %s * 100 - CAST(COALESCE(occ1, 0) AS REAL) / %s * 100 AS wpd_diff
                     FROM (SELECT word, count(time) AS occ1 
                           FROM occurences 
                           WHERE time > %s AND time < %s 
@@ -42,9 +42,9 @@ class TrendsLive:
                           GROUP BY word) t2
                        ON t1.word = t2.word
                        ORDER BY wpd_diff DESC
-                       LIMIT 5
+                       LIMIT %s
                 """
-        self.cursor.execute(query, (dur_new, dur_old, date_old, date_middle, date_middle, date_new))
+        self.cursor.execute(query, (dur_new, dur_old, dur_new, dur_old, date_old, date_middle, date_middle, date_new, top))
         rows = self.cursor.fetchall()
         return rows
 
@@ -57,7 +57,8 @@ class TrendsLive:
 def main():
     t = TrendsLive()
     mid = datetime.strptime('1.3.2016', '%d.%m.%Y')
-    rows = t.get_trends(mid, TrendMode.YEAR)
+    rows = t.get_trends(mid, TrendMode.YEAR, 5)
+    print(rows)
     for row in rows:
         dates = t.get_occurences(row[0])
         print(row[0] + " (" + str(row[1]) + " - " + str(row[2]) + " " + str(row[3]) + "):")
