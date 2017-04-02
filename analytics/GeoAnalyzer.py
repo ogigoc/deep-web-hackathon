@@ -5,7 +5,8 @@ import requests
 import psycopg2
 import datetime
 from hashlib import sha1
-from VaderSentimentAnalyzer import VaderSentimentAnalyzer
+from analytics.VaderSentimentAnalyzer import VaderSentimentAnalyzer
+import time
 
 class DbHandler:
     def __init__(self):
@@ -19,7 +20,7 @@ class DbHandler:
 
     def get_blocks(self, qty):
         self.cursor = self.conn.cursor()
-        self.cursor.execute("""SELECT text, analyzed, id FROM text_block WHERE LENGTH(text) > 50 AND analyzed = false LIMIT %s;""", (qty,)) 
+        self.cursor.execute("""SELECT text, analyzed, id FROM text_block WHERE LENGTH(text) > 10 AND analyzed = false LIMIT %s;""", (qty,)) 
         rows = self.cursor.fetchall()
         # TODO: verify this works fine
         blocks, ids = zip(*[(row[0], row[2]) for row in rows])
@@ -79,15 +80,18 @@ def main():
     # url = 'http://www.bbc.com/news/world-europe-26919928'
     h = DbHandler()
     g = GeoAnalyzer()
-    LEN = 10
-    blocks, ids = h.get_blocks(LEN)
-    for i in range(len(blocks)):
-        if i % 10 == 0:
-            print("BLOCK " + str(i) + " / " + str(len(blocks)))
-        g.fetch_locs(text=blocks[i])
-    print(g.get_loc_data())
-    h.put_loc_data(g.get_loc_data())
-    h.mark_analyzed(ids)
+    while True:
+        print("NEW BATCH")
+        BATCH_SIZE = 100
+        blocks, ids = h.get_blocks(BATCH_SIZE)
+        for i in range(len(blocks)):
+            if i % 10 == 0:
+                print("BLOCK " + str(i) + " / " + str(len(blocks)))
+            g.fetch_locs(text=blocks[i])
+        h.put_loc_data(g.get_loc_data())
+        h.mark_analyzed(ids)
+        print("SUCCESS")
+        time.sleep(3)
 
 if __name__ == "__main__":
     main()
