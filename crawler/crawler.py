@@ -31,7 +31,7 @@ prios = dict()
 visited = set()
 for url in CONST.PAGES:
     if url not in visited:
-        db.put_unused_url(url, CONST.PRIORITY_SEARCH/2)
+        db.put_unused_url(url, 70000)
 
 for url in visited:
     prios[links.get_url_base(url)] = CONST.BASE_PRIORITY
