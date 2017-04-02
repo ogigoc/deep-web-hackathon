@@ -32,7 +32,7 @@ def opinion():
         fetcher = OpinionFetcher()
         opinions, verdict = fetcher.fetch(text)
         resp_obj = [{'len': len(opinions), 'verdict': str(verdict), 'opinions': opinions}]
-        return json.dumps("")
+        return json.dumps(resp_obj)
     return json.dumps("Bad request")
 
 @app.route('/trends', methods=['GET'])
@@ -50,10 +50,11 @@ def trends():
         date = datetime.utcfromtimestamp(float(args.get('date')))
         limit = args.get('limit')
         tl = TrendsLive()
-        trends = tl.get_trends(date, mode, limit)
+        trends, date_old, date_new = tl.get_trends(date, mode, limit)
         trends_dict = [{'word': t[0], 'wpd2': t[1], 'wpd1': t[2], 'wpd_diff': t[3]} for t in trends]
         for trend in trends_dict:
-            dates = tl.get_occurences(trend['word'])
+            print(mode, date_old, date_new)
+            dates = tl.get_occurences(trend['word'], date_old, date_new)
             print(dates)
             trend['dates'] = [d.replace(tzinfo=timezone.utc).timestamp() for d in dates]
         return json.dumps(trends_dict)
