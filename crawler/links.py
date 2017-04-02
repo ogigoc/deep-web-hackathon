@@ -1,10 +1,47 @@
 import requests
 import crawler.CONSTANTS as CONST
 
-extensions_file = open('unknown_extensions.ogi', 'a')
+#extensions_file = open('unknown_extensions.ogi', 'a')
 
-def url_priority(url):
-    return 50000 if '?' not in url else 100000
+def get_url_path(url):
+    nodes = url.split('/')[2:] if url.startswith('http') else url.split('/')
+    
+    paths = []
+
+    for i in range(len(nodes)):
+        paths.append('/'.join(nodes[:i+1]))
+
+    return paths
+
+def get_url_base(url):
+    return get_url_path(url)[0]
+
+def get_url_depth(url):
+    return len(get_url_path(url))
+
+def is_base(url):
+    return get_url_depth(url) == 1
+
+def get_link_priority(url, link, utree, prios):
+    b = get_url_base(link)
+    if is_base(link):
+        prios[b] = CONST.BASE_PRIORITY
+
+        if b in utree:
+            utree[b] += 1
+        else:
+            utree[b] = 1
+        return CONST.BASE_PRIORITY
+
+    if b in utree:
+        utree[b] += 1
+    else:
+        utree[b] = 1
+
+    if b not in prios:
+        prios[b] = CONST.BASE_PRIORITY
+
+    return prios[b] + utree[b] * CONST.PRIORITY_DECREMENT
 
 def parse_link(l, url):
     sol = ""
@@ -46,10 +83,12 @@ def filter_invalid(links):
     and '.onion' in link and link.split('.')[-1] not in CONST.IGNORED_EXTENSIONS]
     good_links = [link.split('#')[0] for link in good_links]
 
+    """
     for l in good_links:
         e = l.split('.')[-1]
         if len(e) < 7:
             print(e, file = extensions_file)
+    """
 
     return good_links
 
@@ -62,6 +101,10 @@ def filter_links(links, url):
     return filter_invalid(good_links)
 
 def base(url):
+
+    if 'redit.com' in url:
+        return 'www.reddit.com/r/POLITIC/'
+
     pos = url.find('.onion')
     if pos == -1:
         return url

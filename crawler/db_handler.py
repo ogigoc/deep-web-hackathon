@@ -3,6 +3,7 @@ import datetime
 from hashlib import sha1
 import re
 from analytics.WordValidator import WordValidator
+import crawler.CONSTANTS as CONST
 
 class DbHandler:
     def __init__(self):
@@ -45,12 +46,12 @@ class DbHandler:
         urls = [row[2] for row in rows]
         min_id = min([row[0] for row in rows])
         min_priority = min([row[1] for row in rows])
-        self.cursor.execute("""DELETE FROM unused_urls WHERE id >= %s AND priority >= %s;""",(min_id, min_priority)) 
+        self.cursor.execute("""DELETE FROM unused_urls WHERE id IN (SELECT id FROM unused_urls ORDER BY priority ASC, id ASC LIMIT %s);""",(sz,)) 
         self.conn.commit()
         return urls
         # list(map(queue.put, urls))
 
-    def put_unused_url(self, url, priority = 100000):
+    def put_unused_url(self, url, priority = CONST.PRIORITY_BASE):
         self.cursor = self.conn.cursor()
         self.cursor.execute("""INSERT INTO unused_urls (url, priority) VALUES (%s, %s) ON CONFLICT DO NOTHING;""",(url, priority))
         self.conn.commit()
