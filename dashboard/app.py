@@ -80,7 +80,7 @@ def onions():
         conn = psycopg2.connect(connect_str) 
         cursor = conn.cursor() 
         # give geo stuff
-        cursor.execute("""SELECT url, title, timestamp FROM page ORDER BY timestamp DESC LIMIT %s""", (limit,)) 
+        cursor.execute("""SELECT url, title, timestamp FROM newpage ORDER BY timestamp DESC LIMIT %s""", (limit,)) 
         rows = cursor.fetchall()
         rows_obj = [{'url': row[0], 'title': html.unescape(row[1]), 'timestamp': row[2].replace(tzinfo=timezone.utc).timestamp()} for row in rows]
         return json.dumps(rows_obj)

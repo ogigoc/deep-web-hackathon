@@ -13,7 +13,7 @@ class DbHandler:
 
     def put_page(self, url, last_modified, title):
         self.cursor = self.conn.cursor()
-        self.cursor.execute("""INSERT INTO page (url, timestamp, title) VALUES (%s, now(), %s) ON CONFLICT DO NOTHING;""",(url, title))
+        self.cursor.execute("""INSERT INTO newpage (url, timestamp, title) VALUES (%s, now(), %s) ON CONFLICT DO NOTHING;""",(url, title))
         self.conn.commit()
 
     def put_text_blocks(self, url, text_blocks):
