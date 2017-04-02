@@ -2,7 +2,7 @@ import psycopg2
 import datetime
 from hashlib import sha1
 import re
-import crawler.stopwords
+import analytics.WordValidator
 
 class DbHandler:
     def __init__(self):
@@ -17,6 +17,7 @@ class DbHandler:
 
     def put_text_blocks(self, url, text_blocks):
         self.cursor = self.conn.cursor()
+        validator = analytics.WordValidator()
         for i, lst in enumerate(text_blocks):
             for text_block in lst:
                 self.cursor.execute("""INSERT INTO text_block (page_url, text, time, weight, category_id, sha1) VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;""",
@@ -24,7 +25,7 @@ class DbHandler:
                 for word in text_block.text.split():
                     if text_block.time:
                         word_clean = re.sub(r"[->!?;.,', ']", "", word).lower().strip()
-                        if not stopwords.is_stopword(word_clean):
+                        if validator.is_english(word_clean) and not validator.is_stopword(word_clean):
                             self.cursor.execute("""INSERT INTO occurences(word, time) VALUES(%s, %s)""", (word_clean, text_block.time))
         self.conn.commit()
 
