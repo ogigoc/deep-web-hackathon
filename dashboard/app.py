@@ -2,6 +2,7 @@ import psycopg2
 import threading
 from flask import Flask, request, render_template
 import json
+import threading
 from analytics.OpinionFetcher import OpinionFetcher
 from analytics.TrendMode import TrendMode
 from datetime import datetime, timedelta, timezone
@@ -66,7 +67,6 @@ def seed():
     data = request.get_json()
     if data and data.get('query'):
         results = ['tred']
-        threading
         t = threading.Thread(target=seed_crawler, args=(data.get('query'),))
         t.start()
         return json.dumps("Found " + str(results) + " results.")
