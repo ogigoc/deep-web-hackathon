@@ -1,5 +1,5 @@
 function buildUrl(endpoint) {
-    return "http://10.120.193.147:5000/" + endpoint;
+    return "http://127.0.0.1:5000/" + endpoint;
 }
 
 export function getGeoSentiment() {
@@ -21,4 +21,25 @@ export function getTrends(timestamp, mode, limit) {
 export function getOpinion(query) {
     return fetch(buildUrl(`opinion?text=${query}`))
         .then(response => response.json());
+}
+
+export function getPages(limit) {
+    return fetch(buildUrl(`onions?limit=${limit}`))
+        .then(response => response.json());
+}
+
+export function getTextBlocks(pageUrl) {
+    return fetch(buildUrl(`textBlocks?url=${pageUrl}`))
+        .then(response => response.json());
+}
+
+export function postSearch(query) {
+    return fetch(buildUrl('seed'), {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({ query })
+    }).then(response => response.json());
 }
