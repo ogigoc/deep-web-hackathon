@@ -4,7 +4,7 @@ import { XYPlot, HorizontalGridLines, LineSeries, XAxis, YAxis } from 'react-vis
 
 export default class TrendsChart extends React.Component {
     computeData(dates) {
-        var dateCounts = {};
+        let dateCounts = {};
         for (const date of dates) {
             const timestamp = date.getTime();
             if (typeof dateCounts[timestamp] === "undefined") {
@@ -36,7 +36,7 @@ export default class TrendsChart extends React.Component {
                 height={550}>
                 <HorizontalGridLines />
                 {data.map((series, i) =>
-                    <LineSeries key={i} color={series.color} data={this.computeData(series.dates)} />
+                    <LineSeries curve="curveCatmullRom" key={i} color={series.color} data={this.computeData(series.dates)} />
                 )}
                 <XAxis />
                 <YAxis />

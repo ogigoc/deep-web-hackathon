@@ -38,12 +38,19 @@ export default class Trends extends React.Component {
         this.onWordEnabledChange = this.onWordEnabledChange.bind(this);
     }
 
-    fetchTrends() {
+    fetchTrends(date, range) {
         this.setState({
             loading: true
         });
 
-        const { date, range } = this.state;
+        if (!date) {
+            date = this.state.date;
+        }
+
+        if (!range) {
+            range = this.state.range;
+        }
+
         getTrends(date.toDate(), range, 11) .then(resp => {
             const items = resp.map((i, idx) => ({
                 word: i.word,
@@ -71,7 +78,7 @@ export default class Trends extends React.Component {
 
     onDateChange(date) {
         this.setState({ date });
-        this.fetchTrends();
+        this.fetchTrends(date);
     }
 
     onDatePickerFocusChange({ focused }) {
@@ -80,7 +87,7 @@ export default class Trends extends React.Component {
 
     onRangeChange(_, data) {
         this.setState({ range: data.value });
-        this.fetchTrends();
+        this.fetchTrends(undefined, data.value);
     }
 
     onWordEnabledChange(word, enabled) {
