@@ -16,7 +16,7 @@ CORS(app)
 
 @app.route('/geo', methods=['GET'])
 def geo():
-    connect_str = "dbname='deepweb' user='midza' host='10.120.194.45' password='midza555333!'" 
+    connect_str = "dbname='deepweb' user='midza' host='10.120.193.201' password='midza555333!'" 
     conn = psycopg2.connect(connect_str) 
     cursor = conn.cursor() 
     # give geo stuff
@@ -77,7 +77,7 @@ def onions():
     args = request.args
     if 'limit' in args.keys():
         limit = args.get('limit')
-        connect_str = "dbname='deepweb' user='midza' host='10.120.194.45' password='midza555333!'" 
+        connect_str = "dbname='deepweb' user='midza' host='10.120.193.201' password='midza555333!'" 
         conn = psycopg2.connect(connect_str) 
         cursor = conn.cursor() 
         # give geo stuff
@@ -92,7 +92,7 @@ def textBlocks():
     args = request.args
     if 'url' in args.keys():
         url = args.get('url')
-        connect_str = "dbname='deepweb' user='midza' host='10.120.194.45' password='midza555333!'" 
+        connect_str = "dbname='deepweb' user='midza' host='10.120.193.201' password='midza555333!'" 
         conn = psycopg2.connect(connect_str) 
         cursor = conn.cursor() 
         # give geo stuff
@@ -104,4 +104,4 @@ def textBlocks():
     return json.dumps("Bad request")
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='10.120.193.201')

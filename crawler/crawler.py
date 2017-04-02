@@ -10,8 +10,8 @@ import crawler.net_threads as net_threads
 import crawler.links as links
 
 session = requests.session()
-session.proxies = {'http' : 'http://10.120.194.45:8123/',
-        'https': 'http://10.120.194.45:8123/'}
+session.proxies = {'http' : 'http://10.120.193.201:8123/',
+        'https': 'http://10.120.193.201:8123/'}
 
 my_ip = requests.get("http://httpbin.org/ip").text
 tor_ip = session.get("http://httpbin.org/ip").text
