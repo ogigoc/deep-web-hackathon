@@ -2,7 +2,7 @@ import psycopg2
 import datetime
 from hashlib import sha1
 import re
-import stopwords
+import crawler.stopwords
 
 class DbHandler:
     def __init__(self):
@@ -22,7 +22,7 @@ class DbHandler:
                 self.cursor.execute("""INSERT INTO text_block (page_url, text, time, weight, category_id, sha1) VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;""",
                  (url, text_block.text, text_block.time, text_block.weight, i, sha1(text_block.text.encode('utf-8')).hexdigest()))
                 for word in text_block.text.split():
-                    if 'time' in text_block:
+                    if text_block.time:
                         word_clean = re.sub(r"[->!?;.,', ']", "", word).lower().strip()
                         if not stopwords.is_stopword(word_clean):
                             self.cursor.execute("""INSERT INTO occurences(word, time) VALUES(%s, %s)""", (word_clean, text_block.time))

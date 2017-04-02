@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+from crawler.links import filter_invalid
 
 class Searcher:
 	def __init__(self):
@@ -20,8 +21,7 @@ class Searcher:
 		html = self.session.get(url).text
 		reg = re.compile(r'href="([^"]+)')
 		links = reg = reg.findall(html)
-		return links
-
+		return filter_invalid(links)
 
 	def get_notevil_results(self, query):
 		reg = re.compile('^\.\/r2d.php\?url=(.*)\&q=.*$')
@@ -30,5 +30,5 @@ class Searcher:
 		soup = BeautifulSoup(html, 'html.parser')
 		links = soup.find_all('span', style='color:black;')
 		link_texts = [link.text for link in links]
-		return link_texts
+		return filter_invalid(link_texts)
 
