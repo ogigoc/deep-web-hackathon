@@ -25,8 +25,8 @@ class TrendsLive:
             raise("This should never happen")
         date_old = date_middle - delta
         date_new = min(datetime.now(), date_middle + delta)
-        dur_old = (date_middle - date_old).days
-        dur_new = (date_new - date_middle).days
+        dur_old = (date_middle - date_old).days + 1
+        dur_new = (date_new - date_middle).days + 1
         query = """ SELECT COALESCE(t1.word, t2.word) AS word, 
                            CAST(COALESCE(occ2, 0) AS REAL) / %s * 100 AS wpd2,
                            CAST(COALESCE(occ1, 0) AS REAL) / %s * 100 AS wpd1,
