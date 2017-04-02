@@ -19,7 +19,7 @@ class Searcher:
 		reg = re.compile('^\.\/r2d.php\?url=(.*)\&q=.*$')
 		url = 'http://xmh57jrzrnw6insl.onion/4a1f6b371c/search.cgi?q={0}&cmd=Search!'.format(query)
 		try:
-			html = self.session.get(url, timeout = 3).text
+			html = self.session.get(url, timeout = 5).text
 			reg = re.compile(r'href="([^"]+)')
 			links = reg = reg.findall(html)
 			return filter_invalid(links)
@@ -30,7 +30,7 @@ class Searcher:
 		reg = re.compile('^\.\/r2d.php\?url=(.*)\&q=.*$')
 		url = 'http://hss3uro2hsxfogfq.onion/index.php?q={0}'.format(query)
 		try:
-			html = self.session.get(url, timeout = 3).text
+			html = self.session.get(url, timeout = 5).text
 			soup = BeautifulSoup(html, 'html.parser')
 			links = soup.find_all('span', style='color:black;')
 			link_texts = [link.text for link in links]
@@ -38,3 +38,25 @@ class Searcher:
 		except:
 			return []
 
+		#http://gjobqjj7wyczbqie.onion/?q=canada
+	def get_ahmia_results(self, query):
+		reg = re.compile('^\.\/r2d.php\?url=(.*)\&q=.*$')
+		url = 'http://msydqstlz2kzerdg.onion/search/?q={0}'.format(query)
+		try:
+			html = self.session.get(url, timeout = 5).text
+			reg = re.compile(r'href="([^"]+)')
+			links = reg = reg.findall(html)
+			return filter_invalid(links)
+		except:
+			return []
+
+	def get_candle_results(self, query):
+		reg = re.compile('^\.\/r2d.php\?url=(.*)\&q=.*$')
+		url = 'http://gjobqjj7wyczbqie.onion/?q={0}'.format(query)
+		try:
+			html = self.session.get(url, timeout = 5).text
+			reg = re.compile(r'href="([^"]+)')
+			links = reg = reg.findall(html)
+			return filter_invalid(links)
+		except:
+			return []

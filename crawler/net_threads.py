@@ -65,30 +65,30 @@ def process_data(threadID, q, s, h, visited, utree, prios):
             q.task_done()
             continue
 
-        if r:
-            try:
-                tm = time.time()
-                #print('len is {0}'.format(len(r.text)))
-                text_blocks = parse_html(r.text)
-                #print('parsed in {0}'.format(1000 * (time.time() - tm)))
+            
+        try:
+            tm = time.time()
+            #print('len is {0}'.format(len(r.text)))
+            text_blocks = parse_html(r.text)
+            #print('parsed in {0}'.format(1000 * (time.time() - tm)))
 
-                #print('url = {0}'.format(url))
-                tittle_list = re.compile(r'<title>([^<]*)<\/title>').findall(r.text)
+            #print('url = {0}'.format(url))
+            tittle_list = re.compile(r'<title>([^<]*)<\/title>').findall(r.text)
 
-                tm = time.time()
-                h.put_page(url, datetime.datetime.now(), tittle_list[0] if tittle_list else '')
-                #print('put page')
+            tm = time.time()
+            h.put_page(url, datetime.datetime.now(), tittle_list[0] if tittle_list else '')
+            #print('put page')
 
-                #print('put page in {0}'.format(1000 * (time.time() - tm)))
-                tm = time.time()
+            #print('put page in {0}'.format(1000 * (time.time() - tm)))
+            tm = time.time()
 
-                h.put_text_blocks(url, text_blocks)
+            h.put_text_blocks(url, text_blocks)
 
-                #print('put {1} text blocks in {0}'.format(1000 * (time.time() - tm), len([l for lst in text_blocks for l in lst])))
+            #print('put {1} text blocks in {0}'.format(1000 * (time.time() - tm), len([l for lst in text_blocks for l in lst])))
 
-                #print('put text blocks')
-            except Exception as e:
-                print('[!] Exception occured when parsing/retrieving! Details: {0}'.format(e))
+            #print('put text blocks')
+        except Exception as e:
+            print('[!] Exception occured when parsing/retrieving! Details: {0}'.format(e))
 
         reg = re.compile(r'href="([^"]+)')
         good_links = links.filter_links(reg.findall(r.text), r.url)
