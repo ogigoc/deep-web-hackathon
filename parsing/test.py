@@ -4,7 +4,7 @@ from .parser import parse_html
 
 def parse_test(url):
     proxies = {
-        'http': 'http://10.120.194.45:8123'
+        'http': 'http://10.120.193.201:8123'
     }
 
     r = requests.get(url, proxies=proxies)

@@ -6,8 +6,8 @@ from crawler.links import filter_invalid
 class Searcher:
 	def __init__(self):
 		self.session = requests.session()
-		self.session.proxies = {'http':  'http://10.120.194.45:8123/',
-	                   			'https': 'http://10.120.194.45:8123/'}
+		self.session.proxies = {'http':  'http://10.120.193.201:8123/',
+	                   			'https': 'http://10.120.193.201:8123/'}
 
 		my_ip = requests.get("http://httpbin.org/ip").text
 		tor_ip = self.session.get("http://httpbin.org/ip").text

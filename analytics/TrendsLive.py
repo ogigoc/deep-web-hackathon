@@ -7,7 +7,7 @@ from analytics.TrendMode import TrendMode
 
 class TrendsLive:
     def __init__(self):
-        connect_str = "dbname='deepweb' user='midza' host='10.120.194.45' password='midza555333!'" 
+        connect_str = "dbname='deepweb' user='midza' host='10.120.193.201' password='midza555333!'" 
         self.conn = psycopg2.connect(connect_str) 
         self.cursor = self.conn.cursor() 
 
