@@ -32,7 +32,7 @@ def opinion():
         fetcher = OpinionFetcher()
         opinions, verdict = fetcher.fetch(text)
         resp_obj = [{'len': len(opinions), 'verdict': str(verdict), 'opinions': opinions}]
-        return json.dumps("")
+        return json.dumps(resp_obj)
     return json.dumps("Bad request")
 
 @app.route('/trends', methods=['GET'])

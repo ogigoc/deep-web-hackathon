@@ -26,7 +26,7 @@ class OpinionFetcher:
             sentiment = self.sen.get_sentiment(text)
             opinions.append(sentiment)
         if len(opinions) == 0:
-            return "0 mentions of " + sample + "."
+            return ([], self.sen.get_verdict(0))
         avg = sum(opinions) / float(len(opinions))
         verdict = self.sen.get_verdict(avg)
         return (opinions, verdict)
