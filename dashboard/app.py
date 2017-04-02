@@ -1,4 +1,5 @@
 import psycopg2
+import threading
 from flask import Flask, request, render_template
 import json
 from analytics.OpinionFetcher import OpinionFetcher
@@ -86,5 +87,21 @@ def onions():
         return json.dumps(rows_obj)
     return json.dumps("Bad request")
 
+@app.route('/textBlocks', methods=['GET'])
+def textBlocks():
+    args = request.args
+    if 'url' in args.keys():
+        url = args.get('url')
+        connect_str = "dbname='deepweb' user='midza' host='10.120.194.45' password='midza555333!'" 
+        conn = psycopg2.connect(connect_str) 
+        cursor = conn.cursor() 
+        # give geo stuff
+        cursor.execute("""SELECT sha1, text, time FROM text_block WHERE page_url=%s""", (url,)) 
+        rows = cursor.fetchall()
+        rows_obj = [{'sha1': row[0], 'text': html.unescape(row[1]), 'time': (None
+            if not row[2] else row[2].replace(tzinfo=timezone.utc).timestamp())} for row in rows]
+        return json.dumps(rows_obj)
+    return json.dumps("Bad request")
+
 if __name__ == '__main__':
-    app.run(host='10.120.193.147')
+    app.run()
