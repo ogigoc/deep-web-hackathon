@@ -68,3 +68,19 @@ body {
         }
     }
 }
+
+.legend {
+    width: 0px;
+    height: 13px;
+    vertical-align: middle;
+    display: inline-block;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s, width 0.3s;
+    margin-right: 8px;
+
+    &.show {
+        opacity: 1;
+        width: 13px;
+    }
+}

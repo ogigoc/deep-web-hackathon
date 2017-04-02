@@ -1,74 +1,77 @@
 import React from 'react';
-import { Grid, Dropdown, Header, Segment } from 'semantic-ui-react';
+import { Dimmer, Loader, Grid, Dropdown, Header, Segment } from 'semantic-ui-react';
 import { SingleDatePicker } from 'react-dates';
 import * as moment from 'moment'
 import 'react-dates/lib/css/_datepicker.css';
 
-import TrendsTable from './TrendsTable.jsx';
-import TrendsChart from './TrendsChart.jsx';
+import TrendsResults from './TrendsResults.jsx';
+
+import { getTrends } from '../api/Api.js';
+
+const COLORS = [
+    "#db2828",
+    "#f2711c",
+    "#fbbd08",
+    "#b5cc18",
+    "#21ba45",
+    "#00b5ad",
+    "#2185d0",
+    "#6435c9"
+];
 
 export default class Trends extends React.Component {
     constructor() {
         super();
 
-        const mockItems = [{
-            word: 'kite',
-            enabled: true,
-            change: '+12%'
-        }, {
-            word: 'jaja',
-            enabled: true,
-            change: '+8%'
-        }, {
-            word: 'humreti',
-            enabled: true,
-            change: '+5%'
-        }, {
-            word: 'bebo',
-            enabled: true,
-            change: '+3%'
-        }, {
-            word: 'kite2',
-            enabled: true,
-            change: '+12%'
-        }, {
-            word: 'jaja2',
-            enabled: true,
-            change: '+8%'
-        }, {
-            word: 'humreti2',
-            enabled: true,
-            change: '+5%'
-        }, {
-            word: 'bebo2',
-            enabled: true,
-            change: '+3%'
-        }, {
-            enabled: true,
-            word: 'aaaa'
-        }, {
-            enabled: true,
-            word: 'bbbb'
-        }, {
-            enabled: true,
-            word: 'mock'
-        }];
-
         this.state = {
             range: 'week',
+            date: moment.default(),
             datePickerFocused: false,
-            items: mockItems
+            loading: true,
+            items: [],
+            dates: []
         };
 
         this.onDateChange = this.onDateChange.bind(this);
         this.onDatePickerFocusChange = this.onDatePickerFocusChange.bind(this);
         this.onRangeChange = this.onRangeChange.bind(this);
-        this.onSelectedRowChange = this.onSelectedRowChange.bind(this);
         this.onWordEnabledChange = this.onWordEnabledChange.bind(this);
+    }
+
+    fetchTrends() {
+        this.setState({
+            loading: true
+        });
+
+        const { date, range } = this.state;
+        getTrends(date.toDate(), range, 11) .then(resp => {
+            const items = resp.map((i, idx) => ({
+                word: i.word,
+                color: COLORS[idx % COLORS.length],
+                enabled: true,
+                dates: i.dates.map(d => new Date(d * 1000))
+            }));
+
+            this.setState({
+                loading: false,
+                items,
+                dates: this.refilterDates(items)
+            });
+        });
+    }
+
+    refilterDates(words) {
+        return words
+            .filter(w => w.enabled)
+            .map(w => ({
+                dates: w.dates,
+                color: w.color
+            }));
     }
 
     onDateChange(date) {
         this.setState({ date });
+        this.fetchTrends();
     }
 
     onDatePickerFocusChange({ focused }) {
@@ -76,28 +79,30 @@ export default class Trends extends React.Component {
     }
 
     onRangeChange(_, data) {
-        console.log(data);
         this.setState({ range: data.value });
-    }
-
-    onSelectedRowChange(word) {
-        this.setState({ word });
+        this.fetchTrends();
     }
 
     onWordEnabledChange(word, enabled) {
-        console.log(this, word, enabled);
-        this.setState({
-            items: this.state.items.map(w => {
-                if (w.word === word)
-                    w.enabled = enabled;
+        const items = this.state.items.map(w => {
+            if (w.word === word)
+                return { ...w, enabled };
+            else
+                return { ...w };
+        });
 
-                return { word: w.word, enabled: w.enabled };
-            })
+        this.setState({
+            items,
+            dates: this.refilterDates(items)
         });
     }
 
+    componentWillMount() {
+        this.fetchTrends();
+    }
+
     render() {
-        const { items, date, timeframe, datePickerFocused } = this.state;
+        const { loading, items, date, dates, timeframe, datePickerFocused } = this.state;
 
         return (
             <Segment className="widget" raised>
@@ -112,6 +117,7 @@ export default class Trends extends React.Component {
                                 focused={datePickerFocused}
                                 onFocusChange={this.onDatePickerFocusChange}
                                 numberOfMonths={1}
+                                isOutsideRange={() => false}
                                 placeholder="Pick a date..."
                             />
                         </Grid.Column>
@@ -130,30 +136,22 @@ export default class Trends extends React.Component {
                                     text: 'Surrounding year',
                                     value: 'year'
                                 }]}
+                                onChange={this.onRangeChange}
                                 defaultValue='month'
                             />
                         </Grid.Column>
                     </Grid.Row>
-                    <Grid.Row>
-                        <Grid.Column width={7}>
-                            <TrendsTable
-                                onRowEnabledChange={this.onWordEnabledChange}
-                                items={items} />
-                        </Grid.Column>
-                        <Grid.Column width={9}>
-                            <TrendsChart
-                                dates={[
-                                    "01.04.2017",
-                                    "30.10.2016",
-                                    "30.12.2016",
-                                    "30.12.2016",
-                                    "30.11.2016"
-                                ]}
-                            />
-                        </Grid.Column>
-                    </Grid.Row>
+                    {loading ?
+                        <Dimmer inverted active>
+                            <Loader />
+                        </Dimmer> : null}
+                    <TrendsResults
+                        dates={dates}
+                        items={items}
+                        onRowEnabledChange={this.onWordEnabledChange}
+                    />
                 </Grid>
             </Segment>
-            );
-            }
-            }
+        );
+    }
+}

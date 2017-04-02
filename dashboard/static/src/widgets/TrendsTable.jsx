@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon, Checkbox, Table } from 'semantic-ui-react';
+import LegendColor from './LegendColor.jsx';
 
 export default class TrendsTable extends React.Component {
     onEnabledChange(word, checked) {
@@ -23,7 +24,10 @@ export default class TrendsTable extends React.Component {
                     {items.map(item =>
                         (<Table.Row active={selectedRow === item.word} key={item.word} >
                             <Table.Cell><Checkbox onChange={(_, { checked }) => this.onEnabledChange(item.word, checked)} checked={item.enabled} /></Table.Cell>
-                            <Table.Cell><span className="top-word">{item.word}</span></Table.Cell>
+                            <Table.Cell>
+                                <LegendColor show={item.enabled} color={item.color} />
+                                <span className="top-word">{item.word}</span>
+                            </Table.Cell>
                         </Table.Row>))}
                 </Table.Body>
             </Table>
