@@ -1,3 +1,38 @@
+$main-color: #004258;
+$color-2: #03A688;
+$color-3: #BFDB39;
+
 .hidden {
     display: none;
+}
+
+body {
+    background: #eee;
+}
+
+#content {
+    padding: 20px 30px;
+
+    .widget {
+        padding: 20px;
+    }
+}
+
+#main-menu {
+    padding-left: 20px;
+    padding-right: 30px;
+    height: 70px;
+    background-color: $main-color;
+
+    a.active.item {
+        background-color: $color-2;
+
+        &:hover {
+            background-color: $color-2;
+        }
+
+        &:after {
+            background-color: $color-2 !important;
+        }
+    }
 }

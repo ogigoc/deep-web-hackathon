@@ -15,7 +15,7 @@ export default class NavMenu extends React.Component {
 
     render() {
         return (
-            <Menu size="large" inverted pointing>
+            <Menu id="main-menu" size="large" inverted pointing>
                 <Menu.Item><Header inverted as='h1'>EXCADRILL</Header></Menu.Item>
                 {this.props.items.map(p =>
                     <Menu.Item key={p.name} name={p.name} active={this.props.activeItem === p.name} onClick={this.onItemClick}>
