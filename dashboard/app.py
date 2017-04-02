@@ -6,8 +6,10 @@ from analytics.TrendMode import TrendMode
 from datetime import datetime, timedelta, timezone
 from analytics.TrendsLive import TrendsLive
 from crawler.seed_crawler import seed_crawler
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__, static_folder='./static/dist', template_folder='./static/')
+CORS(app)
 
 @app.route('/geo', methods=['GET'])
 def geo():
