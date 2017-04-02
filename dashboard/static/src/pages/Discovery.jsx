@@ -22,7 +22,7 @@ export default class Discovery extends React.Component {
     }
 
     fetchTextBlocks(pageUrl) {
-        getTextBlocks(pageUrl).then(resp => this.setState({ textBlocks: resp.filter(resp => resp.text.length > 50) }));
+        getTextBlocks(pageUrl).then(resp => this.setState({ textBlocks: resp.filter(resp => resp.text.length > 50).slice(0, 6) }));
     }
 
     componentWillMount() {
