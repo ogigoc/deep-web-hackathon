@@ -1,7 +1,7 @@
 from crawler.search import Searcher
 from crawler.db_handler import DbHandler
 
-query = "bitcoin"
+query = "water"
 s = Searcher()
 db = DbHandler()
 

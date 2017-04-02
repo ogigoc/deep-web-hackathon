@@ -2,7 +2,7 @@ import psycopg2
 import datetime
 from hashlib import sha1
 import re
-import analytics.WordValidator
+from analytics.WordValidator import WordValidator
 
 class DbHandler:
     def __init__(self):
@@ -17,7 +17,7 @@ class DbHandler:
 
     def put_text_blocks(self, url, text_blocks):
         self.cursor = self.conn.cursor()
-        validator = analytics.WordValidator()
+        validator = WordValidator()
         for i, lst in enumerate(text_blocks):
             for text_block in lst:
                 self.cursor.execute("""INSERT INTO text_block (page_url, text, time, weight, category_id, sha1) VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;""",
